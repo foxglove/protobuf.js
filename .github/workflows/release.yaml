@@ -1,13 +1,22 @@
 on:
   push:
-    branches:
-      - master
-name: release-please
+    tags: ["foxglove-protobufjs-v*"]
+
 jobs:
-  release-please:
+  push:
+    name: push
     runs-on: ubuntu-latest
+
     steps:
-      - uses: google-github-actions/release-please-action@v3
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
         with:
-          command: manifest
-          package-name: release-please-action
+          node-version: 16
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+      - run: npm run test
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
